@@ -44,7 +44,7 @@ public class ProductoBuilder {
         } else if ("Alimento".equals(tipo)) {
             return new ProductoAlimento(id, descripcion, precio, aporteCalorico);
         } else {
-            throw new IllegalArgumentException("Tipo de producto no válido.");
+            throw new IllegalArgumentException("Tipo de producto no válido $.");
         }
     }
 }
