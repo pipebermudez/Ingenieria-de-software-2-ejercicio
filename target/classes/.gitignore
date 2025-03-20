@@ -1,10 +1,2 @@
-/META-INF/
 /application/
-/build.fxbuild
 /co/
-/config.properties
-/controller/
-/model/
-/module-info.class
-/services/
-/view/

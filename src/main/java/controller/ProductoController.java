@@ -13,10 +13,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.Producto;
-import services.AlimentoFactory;
-import services.ElectronicoFactory;
+import model.ProductoBuilder;
 import services.ProductoDAO;
-import services.ProductoFactory;
 
 public class ProductoController {
 
@@ -92,24 +90,36 @@ public class ProductoController {
             return;
         }
 
-        ProductoFactory factory;
+        // Usando el ProductoBuilder para crear un nuevo producto
         Producto nuevoProducto = null;
 
-        if ("Electrónico".equals(tipo)) {
-            factory = new ElectronicoFactory();
-        } else if ("Alimento".equals(tipo)) {
-            factory = new AlimentoFactory();
-        } else {
-            mostrarAlerta("Error", "Tipo de producto no válido.");
-            return;
-        }
-
         try {
-            nuevoProducto = factory.crearProducto(id, descripcion, precio, caracteristicaTexto);
+            if ("Electrónico".equals(tipo)) {
+                nuevoProducto = new ProductoBuilder()
+                    .buildId(id)
+                    .buildDescripcion(descripcion)
+                    .buildPrecio(precio)
+                    .buildTipo("Electrónico")
+                    .buildVoltajeEntrada(caracteristicaTexto)  // En este caso, voltaje para productos electrónicos
+                    .construct();
+            } else if ("Alimento".equals(tipo)) {
+                nuevoProducto = new ProductoBuilder()
+                    .buildId(id)
+                    .buildDescripcion(descripcion)
+                    .buildPrecio(precio)
+                    .buildTipo("Alimento")
+                    .buildAporteCalorico(Integer.parseInt(caracteristicaTexto))  // En este caso, aporte calórico para productos de alimento
+                    .construct();
+            } else {
+                mostrarAlerta("Error", "Tipo de producto no válido.");
+                return;
+            }
+
             productoDAO.insertar(nuevoProducto);
             mostrarAlerta("Éxito", "Producto insertado correctamente.");
             cargarProductos();
             limpiarCampos();
+
         } catch (SQLException e) {
             mostrarAlerta("Error", "No se pudo insertar el producto: " + e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -134,8 +144,6 @@ public class ProductoController {
         }
     }
 
-    
-    
     @FXML
     private void handleDuplicar() {
         Producto seleccionado = tblProductos.getSelectionModel().getSelectedItem();
@@ -153,7 +161,6 @@ public class ProductoController {
             mostrarAlerta("Error", "Error al duplicar el producto: " + e.getMessage());
         }
     }
-
 
     private void cargarProductos() {
         String tipoSeleccionado = cmbTipoProducto.getValue();
